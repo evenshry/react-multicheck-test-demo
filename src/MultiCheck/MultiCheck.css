@@ -1,0 +1,50 @@
+.MultiCheck {
+  width: 375px;
+  box-shadow: 0 0 10px 2px rgba(194, 193, 193, 0.2);
+  background-color: #ffffff;
+}
+
+.MultiCheck_Title {
+  background-color: #dadada;
+  line-height: 30px;
+  padding: 0 10px;
+  font-size: 20px;
+  color: #000000;
+}
+
+.MultiCheck_Content {
+  padding: 10px;
+}
+
+.MultiCheck_Panel {
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  padding: 5px;
+}
+
+.MultiCheck_Column {
+  flex: 1;
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+.MultiCheck_Column_Item {
+  line-height: 24px;
+  padding: 0px;
+}
+
+.MultiCheck_Column_Label {
+  font-size: 16px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.MultiCheck_Column_Check {
+  vertical-align: middle;
+  margin-right: 7px;
+  margin-left: 2px;
+  cursor: pointer;
+}
