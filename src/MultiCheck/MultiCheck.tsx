@@ -1,6 +1,8 @@
 import './MultiCheck.css';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
+
+import Utils, { Sequence } from './utils';
 
 export type Option = {
   label: string;
@@ -30,25 +32,17 @@ type Props = {
 const MultiCheck: React.FunctionComponent<Props> = (props): JSX.Element => {
   const { label = 'MultiCheck', options = [], columns = 1, values = [], onChange } = props;
 
-  const sequences = useMemo(() => {
+  const sequences: Sequence[] = useMemo(() => {
     if (options.length && columns) {
-      return getSequences(options.length, columns);
+      return Utils.getSequences(options.length, columns);
     } else {
       return [];
     }
   }, [options.length, columns]);
 
-  const checkAll = useMemo(() => {
-    let tempCheckAll: boolean = true;
-    options.some((item) => {
-      // if any other option are unchecked, it should be unchecked
-      const include: boolean = values.includes(item.value);
-      if (!include) {
-        tempCheckAll = false;
-      }
-      return !include;
-    });
-    return tempCheckAll;
+  const checkAll: boolean = useMemo(() => {
+    // If every option is checked, then checkAll is checked, otherwise checkAll is unchecked
+    return options.every((item) => values.includes(item.value));
   }, [values.length]);
 
   const handleCheckAll = (checked: boolean): void => {
@@ -66,14 +60,8 @@ const MultiCheck: React.FunctionComponent<Props> = (props): JSX.Element => {
       const removeIndex: number = tempValues.findIndex((v) => v === value);
       tempValues.splice(removeIndex, 1);
     }
-    const items: Option[] = [];
-    options.forEach((item) => {
-      // collect options from values
-      if (tempValues.includes(item.value)) {
-        items.push(item);
-      }
-    });
-
+    // collect options from values
+    const items: Option[] = options.filter((item) => tempValues.includes(item.value));
     onChange && onChange(items);
   };
 
@@ -119,43 +107,6 @@ const MultiCheck: React.FunctionComponent<Props> = (props): JSX.Element => {
       </div>
     </div>
   );
-};
-
-type Sequence = {
-  start: number;
-  end: number;
-};
-
-/**
- * Get options sequences by columns
- * @param length length of options
- * @param columns
- * @returns Array<Sequence>
- */
-const getSequences = (length: number, columns: number): Sequence[] => {
-  // position of 'Select all'
-  const offsetBefore: number = 1;
-  // rows of each column
-  const rows: number = Math.ceil((length + offsetBefore) / columns);
-  const tempSequences: Sequence[] = [];
-  for (let i: number = 0; i < columns; i++) {
-    let start: number = rows * i;
-    let end: number = rows * (i + 1);
-    // over length
-    if (end > length) {
-      end = length;
-    }
-    // not first
-    if (i > 0) {
-      start -= offsetBefore;
-    }
-    // not last
-    if (i < columns - 1) {
-      end -= offsetBefore;
-    }
-    tempSequences.push({ start, end });
-  }
-  return tempSequences;
 };
 
 export default MultiCheck;

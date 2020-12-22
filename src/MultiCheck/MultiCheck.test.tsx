@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import Renderer, { ReactTestInstance, ReactTestRenderer } from 'react-test-renderer';
+import React from 'react';
 import Enzyme from 'enzyme';
+import Renderer, { ReactTestInstance, ReactTestRenderer } from 'react-test-renderer';
 import MultiCheck, { Option } from './MultiCheck';
+import Utils, { Sequence } from './utils';
 
 const options = [
   { label: 'aaa', value: '111' },
@@ -16,6 +17,30 @@ const options = [
 ];
 
 describe('MultiCheck', () => {
+  describe('utils', () => {
+    it('getSequences if length is 9 ', () => {
+      const tempSequences: Sequence[] = Utils.getSequences(9);
+      expect(tempSequences.length).toEqual(1);
+      expect(tempSequences[0].start).toEqual(0);
+      expect(tempSequences[0].end).toEqual(9);
+    });
+
+    it('getSequences if length is 9 and columns is 2', () => {
+      const tempSequences: Sequence[] = Utils.getSequences(9, 2);
+      expect(tempSequences.length).toEqual(2);
+      expect(tempSequences[0].end - tempSequences[0].start).toEqual(5 - 1);
+      expect(tempSequences[1].end - tempSequences[1].start).toEqual(5);
+    });
+
+    it('getSequences if length is 13 and columns is 3', () => {
+      const tempSequences: Sequence[] = Utils.getSequences(13, 3);
+      expect(tempSequences.length).toEqual(3);
+      expect(tempSequences[0].end - tempSequences[0].start).toEqual(5 - 1);
+      expect(tempSequences[1].end - tempSequences[1].start).toEqual(5);
+      expect(tempSequences[2].end - tempSequences[2].start).toEqual(4);
+    });
+  });
+
   describe('initialize', () => {
     it('renders the label if label not provided', () => {
       const component: ReactTestRenderer = Renderer.create(<MultiCheck options={[]} />);
@@ -69,9 +94,8 @@ describe('MultiCheck', () => {
   });
 
   describe('update', () => {
-    let component: ReactTestRenderer = Renderer.create(<MultiCheck options={[]} />);
-
     it('update the label if label provided', () => {
+      let component: ReactTestRenderer = Renderer.create(<MultiCheck options={[]} />);
       Renderer.act(() => {
         component.update(<MultiCheck label="my-multi-check" options={[]} />);
       });
@@ -80,6 +104,7 @@ describe('MultiCheck', () => {
     });
 
     it('update the options if options length is 9', () => {
+      let component: ReactTestRenderer = Renderer.create(<MultiCheck options={[]} />);
       Renderer.act(() => {
         component.update(<MultiCheck label="my-multi-check" options={options} />);
       });
@@ -88,6 +113,7 @@ describe('MultiCheck', () => {
     });
 
     it('update the columns if columns is 2', () => {
+      let component: ReactTestRenderer = Renderer.create(<MultiCheck options={[]} />);
       Renderer.act(() => {
         component.update(<MultiCheck options={options} columns={2} />);
       });
@@ -96,6 +122,7 @@ describe('MultiCheck', () => {
     });
 
     it('update the values if values is ["333", "555"]', () => {
+      let component: ReactTestRenderer = Renderer.create(<MultiCheck options={[]} />);
       Renderer.act(() => {
         component.update(<MultiCheck options={options} values={['333', '555']} columns={2} />);
       });
@@ -105,61 +132,83 @@ describe('MultiCheck', () => {
   });
 
   describe('event', () => {
-    let defaultValues: string[] = ['333', '555'];
-
-    function onSelectedOptionsChange(options: Option[]): void {
-      defaultValues = options.map((it) => it.value);
-    }
-
-    const component: Enzyme.ShallowWrapper = Enzyme.shallow(
-      <MultiCheck options={options} values={defaultValues} columns={2} onChange={onSelectedOptionsChange} />
-    );
-
     it('change a unchecked checkbox to checked', () => {
-      // init initialize parameters
-      defaultValues = ['333', '555'];
-      component.setProps({ values: defaultValues });
-      const checkBoxs = component.find('.MultiCheck_Column_Check');
+      // initialize parameters
+      let tempValues: string[] = ['333', '555'];
+      function onSelectedOptionsChange(options: Option[]): void {
+        tempValues = options.map((it) => it.value);
+      }
+
+      const component: Enzyme.ShallowWrapper = Enzyme.shallow(
+        <MultiCheck options={options} values={tempValues} columns={2} onChange={onSelectedOptionsChange} />
+      );
+
       // simulate change event
+      const checkBoxs = component.find('.MultiCheck_Column_Check');
       checkBoxs.at(1).simulate('change');
-      expect(defaultValues.length).toEqual(3);
-      component.setProps({ values: defaultValues });
+
+      expect(tempValues.length).toEqual(3);
+      component.setProps({ values: tempValues });
       expect(component.find({ checked: true }).length).toEqual(3);
     });
 
     it('change a checked checkbox to unchecked', () => {
-      // init initialize parameters
-      defaultValues = ['333', '555'];
-      component.setProps({ values: defaultValues });
-      const checkBoxs = component.find('.MultiCheck_Column_Check');
+      // initialize parameters
+      let tempValues: string[] = ['333', '555'];
+      function onSelectedOptionsChange(options: Option[]): void {
+        tempValues = options.map((it) => it.value);
+      }
+
+      const component: Enzyme.ShallowWrapper = Enzyme.shallow(
+        <MultiCheck options={options} values={tempValues} columns={2} onChange={onSelectedOptionsChange} />
+      );
+
       // simulate change event
+      const checkBoxs = component.find('.MultiCheck_Column_Check');
       checkBoxs.at(3).simulate('change');
-      expect(defaultValues.length).toEqual(1);
-      component.setProps({ values: defaultValues });
+
+      expect(tempValues.length).toEqual(1);
+      component.setProps({ values: tempValues });
       expect(component.find({ checked: true }).length).toEqual(1);
     });
 
     it('change the "Select All" checkbox to checked', () => {
-      // init initialize parameters
-      defaultValues = ['333', '555'];
-      component.setProps({ values: defaultValues });
-      const checkBoxs = component.find('.MultiCheck_Column_Check');
+      // initialize parameters
+      let tempValues: string[] = ['333', '555'];
+      function onSelectedOptionsChange(options: Option[]): void {
+        tempValues = options.map((it) => it.value);
+      }
+
+      const component: Enzyme.ShallowWrapper = Enzyme.shallow(
+        <MultiCheck options={options} values={tempValues} columns={2} onChange={onSelectedOptionsChange} />
+      );
+
       // simulate change event
+      const checkBoxs = component.find('.MultiCheck_Column_Check');
       checkBoxs.at(0).simulate('change');
-      expect(defaultValues.length).toEqual(9);
-      component.setProps({ values: defaultValues });
+
+      expect(tempValues.length).toEqual(9);
+      component.setProps({ values: tempValues });
       expect(component.find({ checked: true }).length).toEqual(10);
     });
 
     it('change the "Select All" checkbox to unchecked', () => {
-      // init initialize parameters
-      defaultValues = ['111', '222', '333', '444', '555', '666', '777', '888', '999'];
-      component.setProps({ values: defaultValues });
-      const checkBoxs = component.find('.MultiCheck_Column_Check');
+      // initialize parameters
+      let tempValues: string[] = ['111', '222', '333', '444', '555', '666', '777', '888', '999'];
+      function onSelectedOptionsChange(options: Option[]): void {
+        tempValues = options.map((it) => it.value);
+      }
+
+      const component: Enzyme.ShallowWrapper = Enzyme.shallow(
+        <MultiCheck options={options} values={tempValues} columns={2} onChange={onSelectedOptionsChange} />
+      );
+
       // simulate change event
+      const checkBoxs = component.find('.MultiCheck_Column_Check');
       checkBoxs.at(0).simulate('change');
-      expect(defaultValues.length).toEqual(0);
-      component.setProps({ values: defaultValues });
+
+      expect(tempValues.length).toEqual(0);
+      component.setProps({ values: tempValues });
       expect(component.find({ checked: true }).length).toEqual(0);
     });
   });
